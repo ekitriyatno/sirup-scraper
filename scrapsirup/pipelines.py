@@ -6,7 +6,6 @@
 
 # useful for handling different item types with a single interface
 from itemadapter import ItemAdapter
-import psycopg2
 import asyncpg
 from asyncpg import ConnectionDoesNotExistError 
 from datetime import datetime
@@ -113,18 +112,6 @@ class SaveToPostgresPipeline:
         """Mengambil pengaturan dari settings.py"""
         db_settings = crawler.settings.get("DATABASE")
         return cls(db_settings)
-    
-    # async def open_spider(self, spider):
-    #     """Membuka koneksi database saat spider dibuka"""
-    #     try:
-    #         self.pool = await asyncpg.create_pool(**self.db_settings)
-    #         self.conn = await self.pool.acquire()
-    #     except ConnectionDoesNotExistError as e:
-    #         spider.logger.error(f"Error koneksi ke PostgreSQL: {e}")
-    #         raise DropItem(f"Error koneksi: {e}")
-    #     except Exception as e:
-    #         spider.logger.error(f"Error membuka koneksi ke PostgreSQL: {e}")
-    #         raise CloseSpider(f"Error membuka koneksi: {e}")
         
     async def process_item(self, item, spider):
         if self.conn is None:
@@ -132,35 +119,37 @@ class SaveToPostgresPipeline:
             raise DropItem(f"Koneksi database tidak tersedia: {item}")
         
         try:
+            with self.conn.transaction():
             # Menggunakan asyncpg untuk menyimpan item ke PostgreSQL
-            query_sirup = "INSERT INTO scraped_sirup (kode_rup, nama_paket, nama_klpd, satuan_kerja, tahun_anggaran, provinsi, kabupaten_kota, detail_lokasi, volume_pekerjaan, total_pagu, metode_pemilihan, tanggal_umumkan_paket, jenis_pengadaan,sumber_dana, aspek_ekonomi, aspek_sosial, aspek_lingkungan, pemanfaatan_barang_jasa_mulai, pemanfaatan_barang_jasa_akhir, jadwal_pelaksanaan_kontrak_mulai, jadwal_pelaksanaan_kontrak_akhir, jadwal_pemilihan_penyedia_mulai, jadwal_pemilihan_penyedia_akhir) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22,$23)"
-            await self.conn.execute(query_sirup,
-                            item['kode_rup'],
-                            item['nama_paket'],
-                            item['nama_klpd'],
-                            item['satuan_kerja'],
-                            item['tahun_anggaran'],
-                            item['provinsi'],
-                            item['kabupaten_kota'],
-                            item['detail_lokasi'],
-                            item['volume_pekerjaan'],
-                            item['total_pagu'],
-                            item['metode_pemilihan'],
-                            item['tanggal_umumkan_paket'],
-                            item['jenis_pengadaan'],
-                            item['sumber_dana'],
-                            item['aspek_ekonomi'],
-                            item['aspek_sosial'],
-                            item['aspek_lingkungan'],
-                            item['pemanfaatan_barang_jasa_mulai'],
-                            item['pemanfaatan_barang_jasa_akhir'],
-                            item['jadwal_pelaksanaan_kontrak_mulai'],
-                            item['jadwal_pelaksanaan_kontrak_akhir'],
-                            item['jadwal_pemilihan_penyedia_mulai'],
-                            item['jadwal_pemilihan_penyedia_akhir']
-                        )                
-            # self.pool.commit()
-            return item
+                query_sirup = "INSERT INTO scraped_sirup (kode_rup, nama_paket, nama_klpd, satuan_kerja, tahun_anggaran, provinsi, kabupaten_kota, detail_lokasi, volume_pekerjaan, total_pagu, metode_pemilihan, tanggal_umumkan_paket, jenis_pengadaan,sumber_dana, aspek_ekonomi, aspek_sosial, aspek_lingkungan, pemanfaatan_barang_jasa_mulai, pemanfaatan_barang_jasa_akhir, jadwal_pelaksanaan_kontrak_mulai, jadwal_pelaksanaan_kontrak_akhir, jadwal_pemilihan_penyedia_mulai, jadwal_pemilihan_penyedia_akhir) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22,$23)"
+                await self.conn.execute(query_sirup,
+                                item['kode_rup'],
+                                item['nama_paket'],
+                                item['nama_klpd'],
+                                item['satuan_kerja'],
+                                item['tahun_anggaran'],
+                                item['provinsi'],
+                                item['kabupaten_kota'],
+                                item['detail_lokasi'],
+                                item['volume_pekerjaan'],
+                                item['total_pagu'],
+                                item['metode_pemilihan'],
+                                item['tanggal_umumkan_paket'],
+                                item['jenis_pengadaan'],
+                                item['sumber_dana'],
+                                item['aspek_ekonomi'],
+                                item['aspek_sosial'],
+                                item['aspek_lingkungan'],
+                                item['pemanfaatan_barang_jasa_mulai'],
+                                item['pemanfaatan_barang_jasa_akhir'],
+                                item['jadwal_pelaksanaan_kontrak_mulai'],
+                                item['jadwal_pelaksanaan_kontrak_akhir'],
+                                item['jadwal_pemilihan_penyedia_mulai'],
+                                item['jadwal_pemilihan_penyedia_akhir']
+                            )       
+                return item
+
+            self.conn.commit()
 
         except Exception as e:
             spider.logger.error(f"Error menyimpan item ke PostgreSQL: {e}")
@@ -170,7 +159,7 @@ class SaveToPostgresPipeline:
     async def close_spider(self, spider):
         """Menutup koneksi database setelah scraping selesai"""
         if self.pool:
-            self.pool.close()
+            await self.pool.close()
 
 class ScrapsirupPipeline:
     def process_item(self, item, spider):

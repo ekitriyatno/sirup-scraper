@@ -1,0 +1,8 @@
+# Scrapy
+scrapy.cfg
+
+# Scrapy project files
+*/__pycache__/
+*__init__.py
+middlewares.py
+settings.py

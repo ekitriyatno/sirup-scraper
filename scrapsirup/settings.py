@@ -19,9 +19,9 @@ NEWSPIDER_MODULE = "scrapsirup.spiders"
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
 
-# PLAYWRIGHT_LAUNCH_OPTIONS = {
-#     "headless": False,  # Menonaktifkan mode headless
-# }
+PLAYWRIGHT_LAUNCH_OPTIONS = {
+    "headless": False,  # Menonaktifkan mode headless
+}
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -103,21 +103,41 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
+# KEYWORDS = {
+#     "Balita",
+#     "Stunting",
+#     "PMT",
+#     "Hamil",
+#     "Gizi",
+#     "Lansia",
+#     "Susu",
+#     "Bayi",
+#     "Bumil",
+#     "Makan",
+#     "Pasien"
+# }
+
+KEYWORDS = {
+    "Lapangan tenis",
+    "Batita",
+    "Pemain"
+    }
+
+DATABASE = {
+        'host': '10.104.1.134',
+        'user': 'sales.support',
+        'password': 'support77',
+        'database': 'rise_up',
+        'port': '5432'
+    }
 
 # DATABASE = {
-#         'host': '10.104.1.134',
-#         'user': 'sales.support',
-#         'password': 'support77',
+#         'host': 'localhost',
+#         'user': 'postgres',
+#         'password': 'Post321',
 #         'database': 'rise_up',
 #         'port': '5432'
 #     }
 
-DATABASE = {
-        'host': 'localhost',
-        'user': 'postgres',
-        'password': 'Post321',
-        'database': 'rise_up',
-        'port': '5432'
-    }
 
 # DATABASE = {'postgres://postgres:Post321@localhost:5432/rise_up'}

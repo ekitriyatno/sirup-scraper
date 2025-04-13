@@ -1,5 +1,6 @@
 import scrapy
 from scrapsirup.items import ScrapsirupItem
+from scrapsirup.settings import KEYWORDS
 
 
 class SirupspiderSpider(scrapy.Spider):
@@ -28,12 +29,8 @@ class SirupspiderSpider(scrapy.Spider):
         await page.wait_for_selector("#searchResult tbody tr")
 
         try:
-            # keywords = {"batita","pemain","tenis lapangan"}
-            keywords = {"Balita","Stunting","PMT","Hamil","Gizi","Lansia","Susu","Bayi","Bumil","Makan","Pasien"}
-            # keywords = {"PMT","Hamil","Gizi","Bayi","Pasien"}
-            key = 0
+            keywords = KEYWORDS
             for keyword in keywords:
-                key += 1
                 # await page.locator('#bulan3').check()
                 await page.locator('#bulan4').check()
                 if keyword == "Makan":
@@ -68,7 +65,7 @@ class SirupspiderSpider(scrapy.Spider):
                     next_button = await page.query_selector("#searchResult_next a")
                     if next_disable is None and next_button:
                         await next_button.click()
-                        await page.wait_for_timeout(1000) #add delay
+                        # await page.wait_for_timeout(1000) #add delay
                     else:
                         break
 
@@ -144,19 +141,33 @@ class SirupspiderSpider(scrapy.Spider):
 
         # Ekstraksi data dari tabel Pemanfaatan Barang/Jasa
         tanggal = inner_table.css('.mid::text').getall()[2:]
-        pemanfaatan_barang_jasa = {}
-        pemanfaatan_barang_jasa["mulai"] = tanggal[0]
-        pemanfaatan_barang_jasa["akhir"] = tanggal[1]
+        if tanggal:
+            pemanfaatan_barang_jasa = {}
+            pemanfaatan_barang_jasa["mulai"] = tanggal[0]
+            pemanfaatan_barang_jasa["akhir"] = tanggal[1]
 
         # Ekstraksi data dari tabel Jadwal Pelaksanaan Kontrak
-        jadwal_pelaksanaan_kontrak = {}
-        jadwal_pelaksanaan_kontrak["mulai"] = tanggal[4]
-        jadwal_pelaksanaan_kontrak["akhir"] = tanggal[5]
+            jadwal_pelaksanaan_kontrak = {}
+            jadwal_pelaksanaan_kontrak["mulai"] = tanggal[4]
+            jadwal_pelaksanaan_kontrak["akhir"] = tanggal[5]
         
         # Ekstraksi data dari tabel Jadwal Pemilihan Penyedia
-        jadwal_pemilihan_penyedia = {}
-        jadwal_pemilihan_penyedia["mulai"] = tanggal[8]
-        jadwal_pemilihan_penyedia["akhir"] = tanggal[9]
+            jadwal_pemilihan_penyedia = {}
+            jadwal_pemilihan_penyedia["mulai"] = tanggal[8]
+            jadwal_pemilihan_penyedia["akhir"] = tanggal[9]
+        else:
+            pemanfaatan_barang_jasa = {}
+            pemanfaatan_barang_jasa["mulai"] = None
+            pemanfaatan_barang_jasa["akhir"] = None
+
+            jadwal_pelaksanaan_kontrak = {}
+            jadwal_pelaksanaan_kontrak["mulai"] = None
+            jadwal_pelaksanaan_kontrak["akhir"] = None
+
+            jadwal_pemilihan_penyedia = {}
+            jadwal_pemilihan_penyedia["mulai"] = None
+            jadwal_pemilihan_penyedia["akhir"] = None
+
 
         sirup_item["kode_rup"] = kode_rup
         sirup_item["nama_paket"] = nama_paket
