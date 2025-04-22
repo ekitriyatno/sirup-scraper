@@ -7,6 +7,7 @@ Project ini mengumpulkan data tender dari portal SiRUP LKPP (https://sirup.lkpp.
 - Python 3.10+
 - Scrapy
 - PostgreSQL (via asyncpg)
+- MySQL
 - Pandas, Matplotlib
 - Jupyter Notebook
 
@@ -46,7 +47,6 @@ Notebook 'notebook/analisis_singkat.ipynb' berisi:
 
 3. **Konfigurasi 'settings.py':**
    - Set 'ROBOTSTXT_OBEY = False'
-   - Tambahkan pipeline ke 'ITEM_PIPELINES'
    - Tambahkan:
      '''python
      DOWNLOAD_HANDLERS = {
