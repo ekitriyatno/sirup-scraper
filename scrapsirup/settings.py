@@ -19,9 +19,9 @@ NEWSPIDER_MODULE = "scrapsirup.spiders"
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = False
 
-PLAYWRIGHT_LAUNCH_OPTIONS = {
-    "headless": False,  # Menonaktifkan mode headless
-}
+# PLAYWRIGHT_LAUNCH_OPTIONS = {
+    # "headless": False,  # Menonaktifkan mode headless
+# }
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -68,7 +68,8 @@ PLAYWRIGHT_LAUNCH_OPTIONS = {
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
    "scrapsirup.pipelines.ConvertDatePipeline": 300,
-   "scrapsirup.pipelines.SaveToPostgresPipeline": 400,
+   "scrapsirup.pipelines.SaveToPostgresPipeline": None,
+   "scrapsirup.pipelines.SaveToMysqlPipeline": 400,
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
@@ -103,25 +104,25 @@ USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTM
 TWISTED_REACTOR = "twisted.internet.asyncioreactor.AsyncioSelectorReactor"
 FEED_EXPORT_ENCODING = "utf-8"
 
-# KEYWORDS = {
-#     "Balita",
-#     "Stunting",
-#     "PMT",
-#     "Hamil",
-#     "Gizi",
-#     "Lansia",
-#     "Susu",
-#     "Bayi",
-#     "Bumil",
-#     "Makan",
-#     "Pasien"
-# }
-
 KEYWORDS = {
-    "Lapangan tenis",
-    "Batita",
-    "Pemain"
-    }
+    "Balita",
+    "Stunting",
+    "PMT",
+    "Hamil",
+    "Gizi",
+    "Lansia",
+    "Susu",
+    "Bayi",
+    "Bumil",
+    "Makan",
+    "Pasien"
+}
+
+# KEYWORDS = {
+#     "Lapangan tenis",
+#     "Batita",
+#     "Pemain"
+#     }
 
 DATABASE = {
         'host': '10.104.1.134',
@@ -130,6 +131,14 @@ DATABASE = {
         'database': 'rise_up',
         'port': '5432'
     }
+
+DATABASEMYSQL ={
+    'host': 'localhost',
+    'user': 'root',
+    'password': '',
+    'database': 'rise_up',
+    'port': '3360'
+}
 
 # DATABASE = {
 #         'host': 'localhost',

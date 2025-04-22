@@ -11,6 +11,7 @@ from asyncpg import ConnectionDoesNotExistError
 from datetime import datetime
 from scrapy.exceptions import DropItem
 from scrapy.exceptions import CloseSpider
+import mysql.connector
 import calendar
 import json
 # from dataclasses import dataclass, field, fields, InitVar, asdict
@@ -81,6 +82,15 @@ class ConvertDatePipeline:
 
             adapter["jadwal_pemilihan_penyedia_mulai"] = jppm_objek.strftime("%Y-%m-01")
             adapter["jadwal_pemilihan_penyedia_akhir"] = jppa_objek.strftime(f"%Y-%m-{get_last_day_of_month(jppa_objek.year, jppa_objek.month)}")
+
+            #Jadwal umumkan paket
+            tgl, bln, thn, jam = adapter["tanggal_umumkan_paket"].split()
+            bln_en = bulan_indonesia_inggris.get(bln)
+            tanggal_umumkan_paket = f"{tgl} {bln_en} {thn} {jam}"
+            tgl_str = datetime.strptime(tanggal_umumkan_paket, "%d %B %Y %H:%M")
+            adapter["tanggal_umumkan_paket"] = tgl_str.strftime('%Y-%m-%d %H:%M')
+
+            #Json.dumps sumber dana
             adapter["sumber_dana"] = json.dumps(adapter["sumber_dana"])
 
             return item
@@ -147,9 +157,9 @@ class SaveToPostgresPipeline:
                                 item['jadwal_pemilihan_penyedia_mulai'],
                                 item['jadwal_pemilihan_penyedia_akhir']
                             )       
+                self.conn.commit()
                 return item
 
-            self.conn.commit()
 
         except Exception as e:
             spider.logger.error(f"Error menyimpan item ke PostgreSQL: {e}")
@@ -160,6 +170,64 @@ class SaveToPostgresPipeline:
         """Menutup koneksi database setelah scraping selesai"""
         if self.pool:
             await self.pool.close()
+
+class SaveToMysqlPipeline:
+    def __init__(self, db_settings):
+        self.db_settings = db_settings
+
+    @classmethod
+    def from_crawler(cls, crawler):
+        db_settings = crawler.settings.get("DATABASEMYSQL")
+        return cls(db_settings)
+
+    def open_spider(self, spider):
+        # Inisialisasi koneksi ke MySQL
+        try:
+            self.connection = mysql.connector.connect(
+                host=self.db_settings['host'],
+                user=self.db_settings['user'],
+                password=self.db_settings['password'],
+                database=self.db_settings['database']
+            )
+            self.cursor = self.connection.cursor()
+        except mysql.connector.Error as err:
+            spider.logger.error(f"Error koneksi ke MySQL: {err}")
+            raise DropItem(f"Error koneksi: {err}")
+
+    def process_item(self, item, spider):
+        # Implementasi penyimpanan ke MySQL
+        try:
+            query_sirup = "INSERT INTO scraped_sirup (kode_rup, nama_paket, nama_klpd, satuan_kerja, tahun_anggaran, provinsi, kabupaten_kota, detail_lokasi, volume_pekerjaan, total_pagu, metode_pemilihan, tanggal_umumkan_paket, jenis_pengadaan,sumber_dana, aspek_ekonomi, aspek_sosial, aspek_lingkungan, pemanfaatan_barang_jasa_mulai, pemanfaatan_barang_jasa_akhir, jadwal_pelaksanaan_kontrak_mulai, jadwal_pelaksanaan_kontrak_akhir, jadwal_pemilihan_penyedia_mulai, jadwal_pemilihan_penyedia_akhir) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)"
+            self.cursor.execute(query_sirup,(
+                                    item['kode_rup'],
+                                    item['nama_paket'],
+                                    item['nama_klpd'],
+                                    item['satuan_kerja'],
+                                    item['tahun_anggaran'],
+                                    item['provinsi'],
+                                    item['kabupaten_kota'],
+                                    item['detail_lokasi'],
+                                    item['volume_pekerjaan'],
+                                    item['total_pagu'],
+                                    item['metode_pemilihan'],
+                                    item['tanggal_umumkan_paket'],
+                                    item['jenis_pengadaan'],
+                                    item['sumber_dana'],
+                                    item['aspek_ekonomi'],
+                                    item['aspek_sosial'],
+                                    item['aspek_lingkungan'],
+                                    item['pemanfaatan_barang_jasa_mulai'],
+                                    item['pemanfaatan_barang_jasa_akhir'],
+                                    item['jadwal_pelaksanaan_kontrak_mulai'],
+                                    item['jadwal_pelaksanaan_kontrak_akhir'],
+                                    item['jadwal_pemilihan_penyedia_mulai'],
+                                    item['jadwal_pemilihan_penyedia_akhir'])
+                                )       
+            self.connection.commit()
+            return item
+        except mysql.connector.Error as err:
+            spider.logger.error(f"Error menyimpan item ke MySQL: {err}")
+            raise DropItem(f"Error menyimpan item: {item}")
 
 class ScrapsirupPipeline:
     def process_item(self, item, spider):

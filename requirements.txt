@@ -1,4 +1,7 @@
 scrapy
 playwright
-itemadapter
 asyncpg
+mysql-connector-python
+pandas
+matplotlib
+RapidFuzz

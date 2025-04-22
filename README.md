@@ -27,9 +27,9 @@ Contoh field:
 ## 📊 Analisis Data
 
 Notebook 'notebook/analisis_singkat.ipynb' berisi:
-- Contoh cleansing data
+- Contoh cleansing data sederhana
 - Distribusi tender per provinsi
-- Tender dengan nilai terbesar
+- Export data ke csv
 
 ## 🔧 Cara Menggunakan
 
@@ -54,6 +54,11 @@ Notebook 'notebook/analisis_singkat.ipynb' berisi:
          "https": "scrapy_playwright.handler.ScrapyPlaywrightDownloadHandler",
      }
      '''
+   - Tambahkan:
+     ITEM_PIPELINES = {
+      "scrapsirup.pipelines.ConvertDatePipeline": 300,
+      "scrapsirup.pipelines.SaveToMysqlPipeline": 400,
+      } 
    - Set 'USER_AGENT' agar tidak diblokir:
      '''python
      USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
@@ -62,7 +67,7 @@ Notebook 'notebook/analisis_singkat.ipynb' berisi:
      '''python
      KEYWORDS = ['minuman segar', 'susu bayi', ...]  # sesuaikan dengan kebutuhan
      '''
-   - Lengkapi pengaturan koneksi PostgreSQL:
+   - Lengkapi pengaturan koneksi MySql:
      '''python
      DATABASE = {
          'host': 'localhost',
