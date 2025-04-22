@@ -35,8 +35,8 @@ Notebook 'notebook/analisis_singkat.ipynb' berisi:
 
 1. **Clone repositori:**
    '''bash
-   git clone https://github.com/username/sirup-scraper-portfolio.git
-   cd sirup-scraper-portfolio
+   git clone https://github.com/ekitriyatno/sirup-scraper.git
+   cd scrapsirup
    '''
 
 2. **Install dependencies:**
