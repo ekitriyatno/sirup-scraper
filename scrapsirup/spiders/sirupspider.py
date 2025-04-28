@@ -25,7 +25,13 @@ class SirupspiderSpider(scrapy.Spider):
     async def parse(self, response):
         page = response.meta['playwright_page']
          # Hilangkan atau sembunyikan elemen yang menghalangi
-        await page.locator(".modal-content-new button.close").click()
+        
+        close_button = page.locator(".modal-content-new button.close")
+        if await close_button.is_visible(timeout=5000): # Cek apakah visible dalam 5 detik
+            await close_button.click()
+        else:
+            print("Modal atau tombol close tidak muncul dalam waktu singkat.")
+
         await page.wait_for_selector("#searchResult tbody tr")
 
         try:
