@@ -1,7 +1,7 @@
 import scrapy
 from scrapsirup.items import ScrapsirupItem
 from scrapsirup.settings import KEYWORDS
-
+from datetime import date
 
 class SirupspiderSpider(scrapy.Spider):
     name = "sirupspider"
@@ -24,10 +24,10 @@ class SirupspiderSpider(scrapy.Spider):
 
     async def parse(self, response):
         page = response.meta['playwright_page']
-         # Hilangkan atau sembunyikan elemen yang menghalangi
+         # Hilangkan atau sembunyikan elemen modal
         
         close_button = page.locator(".modal-content-new button.close")
-        if await close_button.is_visible(timeout=5000): # Cek apakah visible dalam 5 detik
+        if await close_button.is_visible(timeout=3000): # Cek apakah visible dalam 5 detik
             await close_button.click()
         else:
             print("Modal atau tombol close tidak muncul dalam waktu singkat.")
@@ -36,11 +36,13 @@ class SirupspiderSpider(scrapy.Spider):
 
         try:
             keywords = KEYWORDS
+            day = date.today()
+            month = f"#bulan{int(day.strftime("%m"))}"
             for keyword in keywords:
                 # await page.locator('#bulan3').check()
-                await page.locator('#bulan4').check()
+                await page.locator(month).check()
                 if keyword == "Makan":
-                    await page.type('#minim', "200000000", delay=50)
+                    await page.type('#minim', "100000000", delay=10)
                     await page.locator('button.js__btn-filter-pagu').click()
                 await page.locator('#jenis1').check()
                 await page.locator('#pdntrue').check()

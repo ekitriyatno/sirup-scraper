@@ -20,7 +20,7 @@ NEWSPIDER_MODULE = "scrapsirup.spiders"
 ROBOTSTXT_OBEY = False
 
 # PLAYWRIGHT_LAUNCH_OPTIONS = {
-    # "headless": False,  # Menonaktifkan mode headless
+#     "headless": False,  # Menonaktifkan mode headless
 # }
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
@@ -115,7 +115,8 @@ KEYWORDS = {
     "Bayi",
     "Bumil",
     "Makan",
-    "Pasien"
+    "Pasien",
+    "Menyusui"
 }
 
 # KEYWORDS = {
